@@ -1,2 +1,60 @@
-# Google App Engine generated folder
-appengine-generated/
+# ----------------------------------------
+# 1. Operating System & Editor Files
+# ----------------------------------------
+.DS_Store
+*.swp
+*~
+.idea/
+.vscode/
+
+# ----------------------------------------
+# 2. Python Environment & Dependencies
+# ----------------------------------------
+# Virtual Environment directories
+venv/
+env/
+__pycache__/
+
+# Python bytecode
+*.pyc
+*.pyd
+*.pyo
+
+# Packaging files
+dist/
+build/
+*.egg-info
+.tox/
+
+# Installer files
+pip-log.txt
+pip-delete-this-file.txt
+
+# ----------------------------------------
+# 3. Backend Specific Files (Flask)
+# ----------------------------------------
+# Environment variables (Crucial: Contains API Keys/Database URIs)
+.env
+*.json.secret
+settings.py.local
+
+# Database files (if using SQLite locally)
+*.db
+/instance/
+
+# ----------------------------------------
+# 4. Frontend Specific Files (Node/NPM - if you expand to React/Vue)
+# ----------------------------------------
+/node_modules
+/dist
+/build
+npm-debug.log
+yarn-error.log
+package-lock.json
+
+# ----------------------------------------
+# 5. Logs and Temporary Files
+# ----------------------------------------
+logs/
+*.log
+tmp/

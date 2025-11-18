@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura | Personal AI Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #f7f9fc; }
+        .chat-container { max-height: 80vh; overflow-y: auto; }
+        .user-message { background-color: #3b82f6; color: white; border-radius: 1rem 1rem 0.25rem 1rem; }
+        .ai-message { background-color: #ffffff; color: #1f2937; border: 1px solid #e5e7eb; border-radius: 1rem 1rem 1rem 0.25rem; }
+    </style>
+</head>
+<body class="p-4 flex items-center justify-center min-h-screen">
+
+    <div class="w-full max-w-lg bg-gray-100 rounded-xl shadow-2xl p-6">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6 flex items-center justify-center">
+            <span class="mr-3 text-blue-500">🤖</span> Aura Assistant
+        </h1>
+
+        <div id="chat-history" class="chat-container space-y-4 p-4 mb-6 bg-gray-50 rounded-lg">
+            <div class="ai-message max-w-xs p-3 shadow-md">
+                Hello! I am Aura, your day-to-day AI assistant. I can handle scheduling, information lookup, and task management. How can I help you today?
+            </div>
+        </div>
+
+        <form id="chat-form" class="flex space-x-3">
+            <input 
+                type="text" 
+                id="user-input" 
+                placeholder="Ask me about your schedule, the weather, or a task..."
+                class="flex-grow p-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                required
+            >
+            <button 
+                type="submit" 
+                id="send-button"
+                class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full transition duration-150 disabled:opacity-50"
+            >
+                Send
+            </button>
+        </form>
+    </div>
+
+    <script>
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+        const chatHistory = document.getElementById('chat-history');
+        const sendButton = document.getElementById('send-button');
+        const API_URL = 'http://127.0.0.1:5000/api/chat'; // ⚠️ Matches the Flask default port
+
+        // Function to scroll chat to the bottom
+        function scrollToBottom() {
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        // Function to display a message in the chat
+        function displayMessage(text, sender) {
+            const msgDiv = document.createElement('div');
+            const alignment = sender === 'user' ? 'self-end text-right' : 'self-start text-left';
+            const style = sender === 'user' ? 'user-message' : 'ai-message';
+            
+            msgDiv.className = `flex ${alignment}`;
+            msgDiv.innerHTML = `<div class="${style} max-w-xs p-3 shadow-md">${text}</div>`;
+            
+            chatHistory.appendChild(msgDiv);
+            scrollToBottom();
+        }
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = userInput.value.trim();
+
+            if (!message) return;
+
+            // 1. Display User Message
+            displayMessage(message, 'user');
+            userInput.value = '';
+            sendButton.disabled = true;
+
+            // 2. Display Typing Indicator (AI response placeholder)
+            displayMessage('Aura is typing...', 'ai_typing');
+            
+            try {
+                // 3. Send Request to Flask Backend
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const data = await response.json();
+                
+                // 4. Remove Typing Indicator & Display AI Response
+                chatHistory.removeChild(chatHistory.lastChild);
+                displayMessage(data.response, 'ai');
+
+            } catch (error) {
+                console.error('Error fetching AI response:', error);
+                chatHistory.removeChild(chatHistory.lastChild);
+                displayMessage('Sorry, I couldn\'t connect to the server. Please check the backend console.', 'ai');
+            } finally {
+                sendButton.disabled = false;
+            }
+        });
+
+        // Initial scroll after load
+        scrollToBottom();
+    </script>
+</body>
+</html>
